@@ -1,25 +1,22 @@
 import type { PlaceType, ReviewRow } from "../lib/reviews";
-import type { Lang } from "../lib/i18n";
-import { useLang } from "../lib/LanguageProvider";
 import Stars from "./Stars";
 
-function typeLabel(type: PlaceType | string, lang: Lang): string {
+function typeLabel(type: PlaceType | string): string {
   switch (type) {
     case "restaurant":
-      return lang === "es" ? "Restaurante" : "Restaurant";
+      return "Restaurant";
     case "experience":
-      return lang === "es" ? "Experiencia" : "Experience";
+      return "Experience";
     case "discovery":
-      return lang === "es" ? "Descubrimiento" : "Discovery";
+      return "Discovery";
     case "recommendation":
-      return lang === "es" ? "Recomendación" : "Recommendation";
+      return "Recommendation";
     default:
       return type;
   }
 }
 
 export default function ReviewCard({ review }: { review: ReviewRow }) {
-  const { lang } = useLang();
   const meta = [review.cuisine, review.area, review.price_range]
     .filter((part): part is string => Boolean(part))
     .join(" · ");
@@ -39,7 +36,7 @@ export default function ReviewCard({ review }: { review: ReviewRow }) {
       <div className="p-4 sm:p-5">
         <div className="flex items-center justify-between gap-2">
           <span className="rounded-full bg-panel-2 px-3 py-1 text-[11px] font-black uppercase tracking-wider text-saffron">
-            {typeLabel(review.place_type, lang)}
+            {typeLabel(review.place_type)}
           </span>
           <Stars rating={review.rating} />
         </div>

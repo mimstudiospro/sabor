@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { PlaceType, ReviewRow } from "../lib/reviews";
 import { PLACE_TYPES } from "../lib/reviews";
-import { useLang } from "../lib/LanguageProvider";
+import { t } from "../lib/i18n";
 import ReviewCard from "./ReviewCard";
 
 type Filter = "all" | PlaceType;
@@ -17,7 +17,6 @@ export default function HomePage({
   loadError: string | null;
   configured: boolean;
 }) {
-  const { t } = useLang();
   const [filter, setFilter] = useState<Filter>("all");
 
   const shown = filter === "all" ? reviews : reviews.filter((r) => r.place_type === filter);

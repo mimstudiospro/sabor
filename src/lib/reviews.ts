@@ -1,9 +1,10 @@
 import DOMPurify from "dompurify";
 import { marked } from "marked";
 import { supabase, supabaseConfigured } from "./supabase";
-import type { Lang } from "./i18n";
 
-/** A food review: one place, rated, written in English and/or Spanish. */
+/** A food review: one place, rated, written in English. Sabor is
+ * English-only (Hiram, Nov 26 2026: the only sites with Spanish are
+ * CongHub and Lang). */
 export type PlaceType = "restaurant" | "experience" | "discovery" | "recommendation";
 
 export const PLACE_TYPES: PlaceType[] = [
@@ -25,7 +26,6 @@ export type ReviewRow = {
   rating: number;
   price_range: string | null;
   body_en: string;
-  body_es: string;
   cover_image_url: string | null;
   status: string;
   author_id: string | null;
@@ -73,7 +73,6 @@ export interface ReviewFormValues {
   rating: number;
   price_range: string;
   body_en: string;
-  body_es: string;
   cover_image_url: string;
 }
 
@@ -107,69 +106,25 @@ export function validateReview(values: ReviewFormValues): string | null {
       return "errorCover";
     }
   }
-  if (values.body_en.trim().length === 0 && values.body_es.trim().length === 0) {
+  if (values.body_en.trim().length === 0) {
     return "errorBody";
   }
   return null;
 }
 
-/** Validation messages, in both languages. */
-export const VALIDATION_MESSAGES: Record<string, { en: string; es: string }> = {
-  errorSlug: {
-    en: "Use lowercase letters, numbers, and hyphens for the slug.",
-    es: "Usa minúsculas, números y guiones para el enlace.",
-  },
-  errorPlaceName: {
-    en: "Give it a place name (up to 120 characters).",
-    es: "Ponle el nombre del lugar (hasta 120 caracteres).",
-  },
-  errorPlaceType: {
-    en: "Pick a type: restaurant, experience, discovery, or recommendation.",
-    es: "Elige un tipo: restaurante, experiencia, descubrimiento o recomendación.",
-  },
-  errorRating: {
-    en: "Give a rating from 1 to 5, in half steps.",
-    es: "Pon una calificación de 1 a 5, en medios puntos.",
-  },
-  errorPrice: {
-    en: "Pick a price range: $, $$, $$$ or $$$$.",
-    es: "Elige un rango de precio: $, $$, $$$ o $$$$.",
-  },
-  errorCover: {
-    en: "Use a secure https image URL for the cover.",
-    es: "Usa una URL https válida para la portada.",
-  },
-  errorBody: {
-    en: "Write the review in English, Spanish, or both.",
-    es: "Escribe la reseña en inglés, en español o en ambos.",
-  },
+/** Validation messages, in English. */
+export const VALIDATION_MESSAGES: Record<string, string> = {
+  errorSlug: "Use lowercase letters, numbers, and hyphens for the slug.",
+  errorPlaceName: "Give it a place name (up to 120 characters).",
+  errorPlaceType: "Pick a type: restaurant, experience, discovery, or recommendation.",
+  errorRating: "Give a rating from 1 to 5, in half steps.",
+  errorPrice: "Pick a price range: $, $$, $$$ or $$$$.",
+  errorCover: "Use a secure https image URL for the cover.",
+  errorBody: "Write the review.",
 };
 
-export function validationMessage(key: string, lang: Lang): string {
-  return VALIDATION_MESSAGES[key]?.[lang] ?? key;
-}
-
-/**
- * The body to show a reader in their language, with the fallback
- * rule: if the review has no body in the reader's language, show the
- * other language with a note. Never machine-translate, never invent
- * copy — the note says plainly which language it is in.
- * Returns null when the review has no body at all.
- */
-export function pickBody(
-  review: ReviewRow,
-  lang: Lang,
-): { body: string; note: "onlyEn" | "onlyEs" | null } | null {
-  const en = review.body_en.trim();
-  const es = review.body_es.trim();
-  if (lang === "en") {
-    if (en) return { body: review.body_en, note: null };
-    if (es) return { body: review.body_es, note: "onlyEs" };
-    return null;
-  }
-  if (es) return { body: review.body_es, note: null };
-  if (en) return { body: review.body_en, note: "onlyEn" };
-  return null;
+export function validationMessage(key: string): string {
+  return VALIDATION_MESSAGES[key] ?? key;
 }
 
 /**
@@ -187,12 +142,12 @@ export function renderReviewMarkdown(bodyMarkdown: string): string {
   return DOMPurify.sanitize(html, { USE_PROFILES: { html: true } });
 }
 
-/** Short date for listings: "Nov 26, 2026" / "26 nov 2026". */
-export function formatReviewDate(iso: string | null | undefined, lang: Lang): string {
+/** Short date for listings: "Nov 26, 2026". */
+export function formatReviewDate(iso: string | null | undefined): string {
   if (!iso) return "";
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return "";
-  return date.toLocaleDateString(lang === "es" ? "es-ES" : "en-US", {
+  return date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -279,7 +234,6 @@ export async function saveReview(input: SaveReviewInput, authorId: string): Prom
     rating: input.rating,
     price_range: input.price_range || null,
     body_en: input.body_en,
-    body_es: input.body_es,
     cover_image_url: input.cover_image_url.trim() || null,
     status: input.publish ? "published" : "draft",
     author_id: authorId,

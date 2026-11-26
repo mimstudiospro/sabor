@@ -1,10 +1,10 @@
 # Sabor
 
-Food reviews from Fort Wayne. Reseñas de comida de Fort Wayne.
+Food reviews from Fort Wayne.
 
 A food review site: restaurants, food experiences, culinary
-discoveries, and recommendations — in English and Spanish. Reviews
-are written by the owner, signed in; everyone else just reads.
+discoveries, and recommendations — in English. Reviews are written
+by the owner, signed in; everyone else just reads.
 
 ## Stack
 

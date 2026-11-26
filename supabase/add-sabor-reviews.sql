@@ -9,9 +9,9 @@
 -- sabor.mimstudiospro.com — Hiram's food review site for Fort Wayne.
 -- Reviews are written by the owner only (has_role admin, the same
 -- gating the main site and GOAT Debate use); everyone else reads
--- published rows only. Reviews carry English and Spanish bodies
--- (body_en / body_es); the app shows the reader's language and falls
--- back to the other one with a note — nothing is machine-translated.
+-- published rows only. Reviews carry one English body (body_en).
+-- Sabor is English-only (Hiram, Nov 26 2026: the only sites with
+-- Spanish are CongHub and Lang).
 --
 -- What this does NOT do:
 --   * It does NOT seed any reviews. The table starts empty on purpose:
@@ -40,7 +40,6 @@ create table if not exists public.sabor_reviews (
   rating numeric not null check (rating >= 1 and rating <= 5 and rating * 2 = floor(rating * 2)),
   price_range text check (price_range is null or price_range in ('$', '$$', '$$$', '$$$$')),
   body_en text not null default '',
-  body_es text not null default '',
   cover_image_url text,
   status text not null default 'draft' check (status in ('draft', 'published')),
   author_id uuid references auth.users (id) on delete set null,
@@ -49,7 +48,7 @@ create table if not exists public.sabor_reviews (
   updated_at timestamptz not null default now(),
   constraint sabor_reviews_slug_format check (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'),
   constraint sabor_reviews_place_name check (char_length(btrim(place_name)) between 1 and 120),
-  constraint sabor_reviews_body_present check (char_length(btrim(body_en)) > 0 or char_length(btrim(body_es)) > 0)
+  constraint sabor_reviews_body_present check (char_length(btrim(body_en)) > 0)
 );
 
 create index if not exists sabor_reviews_status_idx on public.sabor_reviews (status, published_at desc);

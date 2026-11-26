@@ -5,9 +5,7 @@ import { consumeOAuthReturn, fetchIsAdmin, getDisplayName, signOut, useSession }
 import { parseHash } from "./lib/routes";
 import type { Route } from "./lib/routes";
 import { supabaseConfigured } from "./lib/supabase";
-import { LANGS } from "./lib/i18n";
-import type { Lang } from "./lib/i18n";
-import { LanguageProvider, useLang } from "./lib/LanguageProvider";
+import { t } from "./lib/i18n";
 import HomePage from "./components/HomePage";
 import ReviewPage from "./components/ReviewPage";
 import SignInPage from "./components/SignInPage";
@@ -17,27 +15,6 @@ function routeFromHash(): Route {
   return parseHash(window.location.hash);
 }
 
-function LanguageToggle() {
-  const { lang, setLang } = useLang();
-  return (
-    <span className="flex items-center rounded-full border border-line p-0.5" role="group" aria-label="Language / Idioma">
-      {LANGS.map((code: Lang) => (
-        <button
-          key={code}
-          type="button"
-          onClick={() => setLang(code)}
-          aria-pressed={lang === code}
-          className={`rounded-full px-2.5 py-1 text-xs font-black uppercase tracking-wide transition-colors ${
-            lang === code ? "bg-saffron text-black" : "text-zinc-300 hover:text-saffron"
-          }`}
-        >
-          {code}
-        </button>
-      ))}
-    </span>
-  );
-}
-
 function Shell() {
   const [route, setRoute] = useState<Route>(routeFromHash);
   const [reviews, setReviews] = useState<ReviewRow[]>([]);
@@ -45,7 +22,6 @@ function Shell() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const { user } = useSession();
   const [isAdmin, setIsAdmin] = useState(false);
-  const { t } = useLang();
 
   useEffect(() => {
     const onHash = () => {
@@ -140,7 +116,6 @@ function Shell() {
                 {t("signIn")}
               </a>
             )}
-            <LanguageToggle />
           </nav>
           <span className="hidden w-full text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500 lg:block">
             {t("tagline")}
@@ -182,9 +157,5 @@ function Shell() {
 }
 
 export default function App() {
-  return (
-    <LanguageProvider>
-      <Shell />
-    </LanguageProvider>
-  );
+  return <Shell />;
 }

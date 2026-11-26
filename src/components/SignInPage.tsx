@@ -5,7 +5,7 @@ import {
   signInWithPassword,
 } from "../lib/auth";
 import { supabaseConfigured } from "../lib/supabase";
-import { useLang } from "../lib/LanguageProvider";
+import { t } from "../lib/i18n";
 
 /** Google "G" mark for the Continue with Google button. */
 function GoogleMark() {
@@ -38,7 +38,6 @@ function GoogleMark() {
  * it regardless of what the UI shows.
  */
 export default function SignInPage() {
-  const { lang, t } = useLang();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -52,7 +51,7 @@ export default function SignInPage() {
   async function submit() {
     if (busy) return;
     if (!email.trim() || !password) {
-      setError(lang === "es" ? "Escribe tu correo y tu contraseña." : "Enter your email and password.");
+      setError("Enter your email and password.");
       return;
     }
     setBusy(true);
@@ -100,7 +99,7 @@ export default function SignInPage() {
 
       <div className="mt-5 flex items-center gap-3 text-xs text-zinc-500" aria-hidden="true">
         <span className="h-px flex-1 bg-line" />
-        <span>{lang === "es" ? "o inicia sesión con correo" : "or sign in with email"}</span>
+        <span>or sign in with email</span>
         <span className="h-px flex-1 bg-line" />
       </div>
 
@@ -141,7 +140,7 @@ export default function SignInPage() {
           value={password}
           disabled={busy || !supabaseConfigured}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder={lang === "es" ? "Tu contraseña" : "Your password"}
+          placeholder="Your password"
           className="mt-2 w-full rounded-xl border border-line bg-panel-2 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-saffron focus:outline-none disabled:opacity-50"
         />
 

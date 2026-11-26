@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import { fetchPublishedReview, formatReviewDate, pickBody } from "../lib/reviews";
+import { fetchPublishedReview, formatReviewDate } from "../lib/reviews";
 import type { ReviewRow } from "../lib/reviews";
-import { useLang } from "../lib/LanguageProvider";
+import { t } from "../lib/i18n";
 import ReviewBody from "./ReviewBody";
 import Stars from "./Stars";
 
 export default function ReviewPage({ slug }: { slug: string }) {
-  const { lang, t } = useLang();
   const [review, setReview] = useState<ReviewRow | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -56,10 +55,10 @@ export default function ReviewPage({ slug }: { slug: string }) {
     );
   }
 
-  const picked = pickBody(review, lang);
   const meta = [review.cuisine, review.area, review.price_range]
     .filter((part): part is string => Boolean(part))
     .join(" · ");
+  const body = review.body_en.trim();
 
   return (
     <article className="mx-auto max-w-2xl pt-10 sm:pt-14">
@@ -79,16 +78,11 @@ export default function ReviewPage({ slug }: { slug: string }) {
       <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-zinc-400">
         <Stars rating={review.rating} />
         {meta && <span>{meta}</span>}
-        <span>{formatReviewDate(review.published_at ?? review.created_at, lang)}</span>
+        <span>{formatReviewDate(review.published_at ?? review.created_at)}</span>
       </div>
-      {picked?.note && (
-        <p className="mt-6 rounded-xl border border-line bg-panel px-4 py-3 text-sm text-zinc-300">
-          {t(picked.note)}
-        </p>
-      )}
-      {picked ? (
+      {body ? (
         <div className="mt-6">
-          <ReviewBody bodyMarkdown={picked.body} />
+          <ReviewBody bodyMarkdown={body} />
         </div>
       ) : (
         <p className="mt-6 text-zinc-400">{t("emptyReviews")}</p>

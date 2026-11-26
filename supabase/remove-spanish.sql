@@ -1,0 +1,22 @@
+-- ================= Sabor — drop the Spanish body column =================
+--
+-- Run AFTER supabase/add-sabor-reviews.sql, in the MAIN mimstudiospro
+-- project's SQL editor (Lovable Cloud: Database > Manage > SQL editor).
+-- Do NOT run this on any other project.
+--
+-- Why this file exists: the first version of add-sabor-reviews.sql
+-- created public.sabor_reviews with two body columns (body_en and
+-- body_es). Hiram corrected the scope on Nov 26 2026 — Sabor is
+-- English-only ("The only website that should have spanish is
+-- CongHub and Lang") — so the app now reads body_en only and the
+-- canonical SQL files no longer create body_es. This file removes the
+-- column from a table that was already created with it. It is safe to
+-- run even if the live table never had body_es (IF EXISTS), and safe
+-- to run again. No rows are deleted: the table starts empty by design
+-- and any review written before this runs keeps its English body.
+--
+-- Verification (run one at a time in the SQL editor):
+-- select column_name from information_schema.columns where table_schema = 'public' and table_name = 'sabor_reviews' and column_name = 'body_es'; -- expect 0 rows
+-- select column_name from information_schema.columns where table_schema = 'public' and table_name = 'sabor_reviews' and column_name = 'body_en'; -- expect 1 row
+
+alter table public.sabor_reviews drop column if exists body_es;

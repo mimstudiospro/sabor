@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
   formatReviewDate,
   isValidRating,
-  pickBody,
   renderReviewMarkdown,
   slugify,
   validateReview,
@@ -21,7 +20,6 @@ function row(partial: Partial<ReviewRow>): ReviewRow {
     rating: 4.5,
     price_range: "$$",
     body_en: "Great tacos.",
-    body_es: "Tacos buenísimos.",
     cover_image_url: null,
     status: "published",
     author_id: null,
@@ -42,7 +40,6 @@ function values(partial: Partial<ReviewFormValues>): ReviewFormValues {
     rating: 4.5,
     price_range: "$$",
     body_en: "Great tacos.",
-    body_es: "Tacos buenísimos.",
     cover_image_url: "",
     ...partial,
   };
@@ -78,9 +75,9 @@ describe("validateReview", () => {
     expect(validateReview(values({}))).toBeNull();
   });
 
-  it("requires at least one language body", () => {
-    expect(validateReview(values({ body_en: "  ", body_es: "" }))).toBe("errorBody");
-    expect(validateReview(values({ body_en: "", body_es: "Bueno." }))).toBeNull();
+  it("requires an English body", () => {
+    expect(validateReview(values({ body_en: "  " }))).toBe("errorBody");
+    expect(validateReview(values({ body_en: "Great tacos." }))).toBeNull();
   });
 
   it("rejects a bad slug, a missing place name, and a bad cover URL", () => {
@@ -97,32 +94,18 @@ describe("validateReview", () => {
     expect(validateReview(values({ price_range: "" }))).toBeNull();
   });
 
-  it("explains each problem in both languages", () => {
-    expect(validationMessage("errorRating", "en")).toMatch(/1 to 5/);
-    expect(validationMessage("errorRating", "es")).toMatch(/1 a 5/);
-    expect(validationMessage("errorBody", "es")).toMatch(/inglés/);
+  it("explains each problem in English", () => {
+    expect(validationMessage("errorRating")).toMatch(/1 to 5/);
+    expect(validationMessage("errorBody")).toMatch(/Write the review/);
+    expect(validationMessage("no-such-key")).toBe("no-such-key");
   });
 });
 
-describe("pickBody — bilingual fallback", () => {
-  it("shows the reader's language when it exists", () => {
-    expect(pickBody(row({}), "en")).toEqual({ body: "Great tacos.", note: null });
-    expect(pickBody(row({}), "es")).toEqual({ body: "Tacos buenísimos.", note: null });
-  });
-
-  it("falls back to the other language with a note, never inventing copy", () => {
-    expect(pickBody(row({ body_es: "  " }), "es")).toEqual({
-      body: "Great tacos.",
-      note: "onlyEn",
-    });
-    expect(pickBody(row({ body_en: "" }), "en")).toEqual({
-      body: "Tacos buenísimos.",
-      note: "onlyEs",
-    });
-  });
-
-  it("returns null when the review has no body at all", () => {
-    expect(pickBody(row({ body_en: "", body_es: " " }), "en")).toBeNull();
+describe("review rows", () => {
+  it("carry a single English body", () => {
+    const r = row({});
+    expect(r.body_en).toBe("Great tacos.");
+    expect("body_es" in r).toBe(false);
   });
 });
 
@@ -133,10 +116,9 @@ describe("renderReviewMarkdown", () => {
 });
 
 describe("formatReviewDate", () => {
-  it("formats in English and Spanish and returns empty for garbage", () => {
-    expect(formatReviewDate("2026-11-26T12:00:00.000Z", "en")).toBe("Nov 26, 2026");
-    expect(formatReviewDate("2026-11-26T12:00:00.000Z", "es")).toMatch(/26/);
-    expect(formatReviewDate("not a date", "en")).toBe("");
-    expect(formatReviewDate(null, "en")).toBe("");
+  it("formats in English and returns empty for garbage", () => {
+    expect(formatReviewDate("2026-11-26T12:00:00.000Z")).toBe("Nov 26, 2026");
+    expect(formatReviewDate("not a date")).toBe("");
+    expect(formatReviewDate(null)).toBe("");
   });
 });

@@ -30,7 +30,7 @@ describe("supabase/schema.sql", () => {
     expect(sql).toMatch(/rating >= 1 and rating <= 5 and rating \* 2 = floor\(rating \* 2\)/i);
     expect(sql).toMatch(/price_range is null or price_range in \('\$', '\$\$', '\$\$\$', '\$\$\$\$'\)/i);
     expect(sql).toMatch(/slug ~ '\^\[a-z0-9\]\+\(-\[a-z0-9\]\+\)\*\$'/i);
-    expect(sql).toMatch(/char_length\(btrim\(body_en\)\) > 0 or char_length\(btrim\(body_es\)\) > 0/i);
+    expect(sql).toMatch(/char_length\(btrim\(body_en\)\) > 0/i);
     expect(sql).toMatch(/status in \('draft', 'published'\)/i);
   });
 

@@ -1,31 +1,7 @@
-/** The site is fully bilingual: every string lives here in English
- * and Spanish. Nothing is machine-translated — the dictionary is the
- * whole UI copy, written once in each language. */
-
-export type Lang = "en" | "es";
-
-export const LANGS: Lang[] = ["en", "es"];
-
-const STORAGE_KEY = "sabor-lang";
-
-export function readStoredLang(): Lang {
-  if (typeof window === "undefined") return "en";
-  try {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored === "es" || stored === "en") return stored;
-  } catch {
-    // Storage unavailable — English is the fallback.
-  }
-  return "en";
-}
-
-export function storeLang(lang: Lang): void {
-  try {
-    window.localStorage.setItem(STORAGE_KEY, lang);
-  } catch {
-    // Storage unavailable — the choice just doesn't persist.
-  }
-}
+/** Sabor is English-only: every UI string lives here, in English.
+ * (Hiram, Nov 26 2026: the only sites with Spanish are CongHub and
+ * Lang.) Nothing is machine-translated — the dictionary is the whole
+ * UI copy, written once. */
 
 export type DictKey =
   | "tagline"
@@ -44,8 +20,6 @@ export type DictKey =
   | "cuisine"
   | "area"
   | "backToReviews"
-  | "onlyEn"
-  | "onlyEs"
   | "signIn"
   | "signOut"
   | "write"
@@ -59,8 +33,7 @@ export type DictKey =
   | "editHeading"
   | "placeName"
   | "placeType"
-  | "reviewEn"
-  | "reviewEs"
+  | "review"
   | "coverUrl"
   | "saveDraft"
   | "publish"
@@ -82,89 +55,59 @@ export type DictKey =
   | "noReviewsYet"
   | "viewLive";
 
-export const DICT: Record<DictKey, { en: string; es: string }> = {
-  tagline: { en: "Food reviews from Fort Wayne", es: "Reseñas de comida de Fort Wayne" },
-  heroSub: {
-    en: "Restaurants, food experiences, culinary discoveries, and recommendations.",
-    es: "Restaurantes, experiencias gastronómicas, descubrimientos culinarios y recomendaciones.",
-  },
-  latest: { en: "Latest reviews", es: "Reseñas recientes" },
-  all: { en: "All", es: "Todo" },
-  typeRestaurant: { en: "Restaurants", es: "Restaurantes" },
-  typeExperience: { en: "Experiences", es: "Experiencias" },
-  typeDiscovery: { en: "Discoveries", es: "Descubrimientos" },
-  typeRecommendation: { en: "Recommendations", es: "Recomendaciones" },
-  emptyReviews: {
-    en: "No reviews yet — the first one is coming.",
-    es: "Aún no hay reseñas.",
-  },
-  loadingReviews: { en: "Loading the reviews…", es: "Cargando las reseñas…" },
-  notConnected: {
-    en: "Reviews open once the database is connected.",
-    es: "Las reseñas se activan cuando se conecte la base de datos.",
-  },
-  rating: { en: "Rating", es: "Calificación" },
-  price: { en: "Price", es: "Precio" },
-  cuisine: { en: "Cuisine", es: "Cocina" },
-  area: { en: "Area", es: "Zona" },
-  backToReviews: { en: "← Back to the reviews", es: "← Volver a las reseñas" },
-  onlyEn: { en: "Available in English only", es: "Solo disponible en inglés" },
-  onlyEs: { en: "Available in Spanish only", es: "Solo disponible en español" },
-  signIn: { en: "Sign in", es: "Iniciar sesión" },
-  signOut: { en: "Sign out", es: "Cerrar sesión" },
-  write: { en: "Write", es: "Escribir" },
-  reviews: { en: "Reviews", es: "Reseñas" },
-  footerLine: {
-    en: "Food reviews from Fort Wayne.",
-    es: "Reseñas de comida de Fort Wayne.",
-  },
-  signInToWrite: { en: "Sign in to write.", es: "Inicia sesión para escribir." },
-  ownerOnlyWrite: {
-    en: "Only the site owner writes reviews.",
-    es: "Solo el dueño del sitio escribe reseñas.",
-  },
-  signInHeading: { en: "Sign in", es: "Iniciar sesión" },
-  signInSub: {
-    en: "Sign in to write reviews. Only the site owner writes here.",
-    es: "Inicia sesión para escribir reseñas. Solo el dueño del sitio escribe aquí.",
-  },
-  writeHeading: { en: "Write a review", es: "Escribe una reseña" },
-  editHeading: { en: "Edit review", es: "Editar reseña" },
-  placeName: { en: "Place name", es: "Nombre del lugar" },
-  placeType: { en: "Type", es: "Tipo" },
-  reviewEn: { en: "Review in English (Markdown)", es: "Reseña en inglés (Markdown)" },
-  reviewEs: { en: "Review in Spanish (Markdown)", es: "Reseña en español (Markdown)" },
-  coverUrl: {
-    en: "Cover image URL (optional)",
-    es: "URL de la imagen de portada (opcional)",
-  },
-  saveDraft: { en: "Save draft", es: "Guardar borrador" },
-  publish: { en: "Publish", es: "Publicar" },
-  unpublish: { en: "Unpublish", es: "Despublicar" },
-  saveKeepPublished: { en: "Save & keep published", es: "Guardar y seguir publicado" },
-  deleteReview: { en: "Delete this review", es: "Eliminar esta reseña" },
-  deleteReviewConfirm: {
-    en: "Click again to delete for good",
-    es: "Haz clic de nuevo para eliminar definitivamente",
-  },
-  preview: { en: "Preview", es: "Vista previa" },
-  backToWriting: { en: "Back to writing", es: "Volver a escribir" },
-  yourReviews: { en: "Your reviews", es: "Tus reseñas" },
-  draft: { en: "Draft", es: "Borrador" },
-  published: { en: "Published", es: "Publicado" },
-  publishedLive: { en: "Published —", es: "Publicado —" },
-  draftNote: { en: "Draft — nobody can see it yet.", es: "Borrador — nadie puede verlo aún." },
-  noReviewHere: { en: "No review here.", es: "No hay ninguna reseña aquí." },
-  loadingEditor: { en: "Loading the editor…", es: "Cargando el editor…" },
-  notYourDesk: { en: "Not your desk.", es: "No es tu lugar." },
-  notYourDeskSub: {
-    en: "Only the site owner writes reviews. Everyone else just reads.",
-    es: "Solo el dueño del sitio escribe reseñas. Los demás solo leen.",
-  },
-  noReviewsYet: { en: "No reviews yet.", es: "Aún no hay reseñas." },
-  viewLive: { en: "view it live", es: "verla en vivo" },
+export const COPY: Record<DictKey, string> = {
+  tagline: "Food reviews from Fort Wayne",
+  heroSub: "Restaurants, food experiences, culinary discoveries, and recommendations.",
+  latest: "Latest reviews",
+  all: "All",
+  typeRestaurant: "Restaurants",
+  typeExperience: "Experiences",
+  typeDiscovery: "Discoveries",
+  typeRecommendation: "Recommendations",
+  emptyReviews: "No reviews yet — the first one is coming.",
+  loadingReviews: "Loading the reviews…",
+  notConnected: "Reviews open once the database is connected.",
+  rating: "Rating",
+  price: "Price",
+  cuisine: "Cuisine",
+  area: "Area",
+  backToReviews: "← Back to the reviews",
+  signIn: "Sign in",
+  signOut: "Sign out",
+  write: "Write",
+  reviews: "Reviews",
+  footerLine: "Food reviews from Fort Wayne.",
+  signInToWrite: "Sign in to write.",
+  ownerOnlyWrite: "Only the site owner writes reviews.",
+  signInHeading: "Sign in",
+  signInSub: "Sign in to write reviews. Only the site owner writes here.",
+  writeHeading: "Write a review",
+  editHeading: "Edit review",
+  placeName: "Place name",
+  placeType: "Type",
+  review: "Review (Markdown)",
+  coverUrl: "Cover image URL (optional)",
+  saveDraft: "Save draft",
+  publish: "Publish",
+  unpublish: "Unpublish",
+  saveKeepPublished: "Save & keep published",
+  deleteReview: "Delete this review",
+  deleteReviewConfirm: "Click again to delete for good",
+  preview: "Preview",
+  backToWriting: "Back to writing",
+  yourReviews: "Your reviews",
+  draft: "Draft",
+  published: "Published",
+  publishedLive: "Published —",
+  draftNote: "Draft — nobody can see it yet.",
+  noReviewHere: "No review here.",
+  loadingEditor: "Loading the editor…",
+  notYourDesk: "Not your desk.",
+  notYourDeskSub: "Only the site owner writes reviews. Everyone else just reads.",
+  noReviewsYet: "No reviews yet.",
+  viewLive: "view it live",
 };
 
-export function translate(key: DictKey, lang: Lang): string {
-  return DICT[key][lang];
+export function t(key: DictKey): string {
+  return COPY[key];
 }

@@ -12,7 +12,7 @@ import {
   validationMessage,
 } from "../lib/reviews";
 import type { PlaceType, ReviewRow } from "../lib/reviews";
-import { useLang } from "../lib/LanguageProvider";
+import { t } from "../lib/i18n";
 import ReviewBody from "./ReviewBody";
 
 const inputClass =
@@ -32,7 +32,6 @@ export default function ReviewEditor({
   user: User | null;
   isAdmin: boolean;
 }) {
-  const { lang, t } = useLang();
   const [existing, setExisting] = useState<ReviewRow | null>(null);
   const [mine, setMine] = useState<ReviewRow[]>([]);
   const [loading, setLoading] = useState(reviewId !== null);
@@ -47,10 +46,8 @@ export default function ReviewEditor({
   const [rating, setRating] = useState(4);
   const [priceRange, setPriceRange] = useState("");
   const [bodyEn, setBodyEn] = useState("");
-  const [bodyEs, setBodyEs] = useState("");
   const [coverUrl, setCoverUrl] = useState("");
-  const [previewEn, setPreviewEn] = useState(false);
-  const [previewEs, setPreviewEs] = useState(false);
+  const [preview, setPreview] = useState(false);
 
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -75,7 +72,6 @@ export default function ReviewEditor({
             setRating(row.rating);
             setPriceRange(row.price_range ?? "");
             setBodyEn(row.body_en);
-            setBodyEs(row.body_es);
             setCoverUrl(row.cover_image_url ?? "");
           }
         })
@@ -163,12 +159,11 @@ export default function ReviewEditor({
       rating,
       price_range: priceRange,
       body_en: bodyEn,
-      body_es: bodyEs,
       cover_image_url: coverUrl,
     };
     const problem = validateReview(values);
     if (problem) {
-      setSaveError(validationMessage(problem, lang));
+      setSaveError(validationMessage(problem));
       return;
     }
     setSaving(true);
@@ -251,7 +246,7 @@ export default function ReviewEditor({
           maxLength={120}
           disabled={saving}
           onChange={(e) => onPlaceNameChange(e.target.value)}
-          placeholder={lang === "es" ? "El nombre del lugar" : "The name of the place"}
+          placeholder="The name of the place"
           className={inputClass}
         />
 
@@ -304,7 +299,7 @@ export default function ReviewEditor({
               value={cuisine}
               disabled={saving}
               onChange={(e) => setCuisine(e.target.value)}
-              placeholder={lang === "es" ? "Mexicana, italiana…" : "Mexican, Italian…"}
+              placeholder="Mexican, Italian…"
               className={inputClass}
             />
           </div>
@@ -363,18 +358,18 @@ export default function ReviewEditor({
         </div>
 
         <div className="mt-4 flex items-baseline justify-between">
-          <label className={labelClass} htmlFor="review-body-en">
-            {t("reviewEn")}
+          <label className={labelClass} htmlFor="review-body">
+            {t("review")}
           </label>
           <button
             type="button"
-            onClick={() => setPreviewEn(!previewEn)}
+            onClick={() => setPreview(!preview)}
             className="text-xs font-bold text-saffron hover:underline"
           >
-            {previewEn ? t("backToWriting") : t("preview")}
+            {preview ? t("backToWriting") : t("preview")}
           </button>
         </div>
-        {previewEn ? (
+        {preview ? (
           <div className="mt-2 rounded-xl border border-line bg-panel-2 px-3 py-2">
             {bodyEn.trim() ? (
               <ReviewBody bodyMarkdown={bodyEn} />
@@ -384,7 +379,7 @@ export default function ReviewEditor({
           </div>
         ) : (
           <textarea
-            id="review-body-en"
+            id="review-body"
             value={bodyEn}
             rows={10}
             disabled={saving}
@@ -393,41 +388,6 @@ export default function ReviewEditor({
               setSaved(null);
             }}
             placeholder={"Write it in Markdown. # Headings, **bold**, [links](https://example.com)…"}
-            className={`${inputClass} resize-y font-mono`}
-          />
-        )}
-
-        <div className="mt-4 flex items-baseline justify-between">
-          <label className={labelClass} htmlFor="review-body-es">
-            {t("reviewEs")}
-          </label>
-          <button
-            type="button"
-            onClick={() => setPreviewEs(!previewEs)}
-            className="text-xs font-bold text-saffron hover:underline"
-          >
-            {previewEs ? t("backToWriting") : t("preview")}
-          </button>
-        </div>
-        {previewEs ? (
-          <div className="mt-2 rounded-xl border border-line bg-panel-2 px-3 py-2">
-            {bodyEs.trim() ? (
-              <ReviewBody bodyMarkdown={bodyEs} />
-            ) : (
-              <p className="text-sm text-zinc-500">{t("noReviewsYet")}</p>
-            )}
-          </div>
-        ) : (
-          <textarea
-            id="review-body-es"
-            value={bodyEs}
-            rows={10}
-            disabled={saving}
-            onChange={(e) => {
-              setBodyEs(e.target.value);
-              setSaved(null);
-            }}
-            placeholder={"Escríbela en Markdown. # Títulos, **negritas**, [enlaces](https://example.com)…"}
             className={`${inputClass} resize-y font-mono`}
           />
         )}
